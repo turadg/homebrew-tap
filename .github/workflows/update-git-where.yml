@@ -1,0 +1,59 @@
+name: Update git-where formula
+
+on:
+  repository_dispatch:
+    types: [update-formula]
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Update formula
+        env:
+          # version arrives as "v0.3.0", strip the leading "v"
+          VERSION: ${{ github.event.client_payload.version }}
+        run: |
+          VERSION="${VERSION#v}"
+          FORMULA=Formula/git-where.rb
+
+          # Download all four tarballs and compute sha256
+          declare -A SHAS
+          for target in aarch64-apple-darwin x86_64-apple-darwin aarch64-unknown-linux-gnu x86_64-unknown-linux-gnu; do
+            url="https://github.com/turadg/git-where/releases/download/v${VERSION}/git-where-${target}.tar.gz"
+            echo "Downloading ${target}..."
+            sha=$(curl -sfL "$url" | shasum -a 256 | cut -d' ' -f1)
+            if [ -z "$sha" ]; then
+              echo "Failed to download ${target}" >&2
+              exit 1
+            fi
+            SHAS[$target]=$sha
+            echo "  ${target}: ${sha}"
+          done
+
+          # Update version
+          sed -i "s/^  version \".*\"/  version \"${VERSION}\"/" "$FORMULA"
+
+          # Update each sha256 by matching the url pattern on the preceding line
+          for target in aarch64-apple-darwin x86_64-apple-darwin aarch64-unknown-linux-gnu x86_64-unknown-linux-gnu; do
+            # Use awk to find the url line for this target and update the next sha256 line
+            awk -v target="$target" -v sha="${SHAS[$target]}" '
+              /url.*'"$target"'/ { print; found=1; next }
+              found && /sha256/ { sub(/"[a-f0-9]+"/, "\"" sha "\""); found=0 }
+              { print }
+            ' "$FORMULA" > "$FORMULA.tmp" && mv "$FORMULA.tmp" "$FORMULA"
+          done
+
+          echo "Updated formula to ${VERSION}"
+          cat "$FORMULA"
+
+      - name: Commit and push
+        run: |
+          VERSION="${{ github.event.client_payload.version }}"
+          VERSION="${VERSION#v}"
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add Formula/git-where.rb
+          git commit -m "git-where ${VERSION}"
+          git push

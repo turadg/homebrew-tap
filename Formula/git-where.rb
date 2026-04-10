@@ -1,26 +1,26 @@
 class GitWhere < Formula
   desc "Git extension for navigating repos and worktrees with frecency-ranked fuzzy selection"
   homepage "https://github.com/turadg/git-where"
-  version "0.2.0"
+  version "0.3.0"
   license "MIT"
 
   on_macos do
     if Hardware::CPU.arm?
       url "https://github.com/turadg/git-where/releases/download/v#{version}/git-where-aarch64-apple-darwin.tar.gz"
-      sha256 "036922c85eaf6ff3cc0b4ba7143a9df9ea12899721d0f24576d8ac2c651b24a3"
+      sha256 "96d1f8e83d1e943c1f6efc462a71e262b8f3f63f5e08f62eb3b501441b5cb42c"
     else
       url "https://github.com/turadg/git-where/releases/download/v#{version}/git-where-x86_64-apple-darwin.tar.gz"
-      sha256 "ca615d1a8877a6e3375f0cf1fdfad8dcea937984643f966f5bca0f8d177e8fa4"
+      sha256 "3acdd6321b9587ea3b934d7c5c49a30f5743918f9b0a8a4f12bcd2794108f661"
     end
   end
 
   on_linux do
     if Hardware::CPU.arm?
       url "https://github.com/turadg/git-where/releases/download/v#{version}/git-where-aarch64-unknown-linux-gnu.tar.gz"
-      sha256 "1783575330625bdabb0591022032c0635f6aa377dcbfc73deb04ca1873cf7c0d"
+      sha256 "3282ce2e3cd381b1632677f67e4f9c69995adbc9ceb81707667ff234e2b3da46"
     else
       url "https://github.com/turadg/git-where/releases/download/v#{version}/git-where-x86_64-unknown-linux-gnu.tar.gz"
-      sha256 "40d01f2b8ffc2b9ff330a2c60f4fea4c19aa06ee7efa7edb93c5b83eba13c5ab"
+      sha256 "fa7e04a0229126b897bfe1c4dadceeb5946b3e98f0aeddd914a28f86fa4ce4a7"
     end
   end
 
